@@ -1,8 +1,8 @@
 /**
  * FF7 flavored data classes. Simple POJOs used as payloads in nodes.
  */
-public class FF7_Types {
-    public static class Character {
+public class FF7_Types{
+    public static class Character implements Comparable<Character>{
         public String name;
         public int hp;
         public int level;
@@ -11,6 +11,11 @@ public class FF7_Types {
             this.name = name;
             this.hp = hp;
             this.level = level;
+        }
+
+        @Override
+        public int compareTo(Character other){
+            return this.name.compareToIgnoreCase(other.name);
         }
 
         @Override
@@ -28,13 +33,25 @@ public class FF7_Types {
         }
     }
 
-    public static class Materia {
+    public static class Materia implements Comparable<Materia>{
         public String name;
         public int grade;
 
         public Materia(String name, int grade) {
             this.name = name;
             this.grade = grade;
+        }
+
+        @Override
+        public int compareTo(Materia other) {
+            if (other == null) return 1;
+            int name_comp = this.name.compareToIgnoreCase(other.name);
+            if (name_comp != 0) return name_comp;
+
+            // When either grade is 0 (user placeholder), treat as equal
+            if (this.grade == 0 || other.grade == 0) return 0;
+
+            return Integer.compare(this.grade, other.grade);
         }
 
         @Override

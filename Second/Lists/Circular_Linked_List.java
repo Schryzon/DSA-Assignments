@@ -1,7 +1,8 @@
 package Lists;
+import Lists.Linked_List.Visitor;
 import Nodes.*;
 
-public class Circular_Linked_List<T> extends Linked_List<T>{
+public class Circular_Linked_List<T extends Comparable<T>> extends Linked_List<T>{
 	public Circular_Linked_List(){
 		super();
 	}

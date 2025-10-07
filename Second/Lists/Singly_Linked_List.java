@@ -1,7 +1,7 @@
 package Lists;
 import Nodes.*;
 
-public class Singly_Linked_List<T> extends Linked_List<T>{
+public class Singly_Linked_List<T extends Comparable<T>> extends Linked_List<T>{
 	public Singly_Linked_List(){
 		super();
 	}

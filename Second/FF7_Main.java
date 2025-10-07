@@ -28,6 +28,7 @@ public class FF7_Main{
         // seed some entries (optional)
         party.add(new FF7_Types.Character("Cloud", 1200, 50));
         party.add(new FF7_Types.Character("Tifa", 1100, 48));
+        party.add(new FF7_Types.Character("Sephiroth", 2000, 50));
         inventory.add("Potion");
         inventory.add("Ether");
         materia_ring.add(new FF7_Types.Materia("Fire", 3));
@@ -108,7 +109,7 @@ public class FF7_Main{
                 case "4":
                     System.out.print("Name to find: ");
                     String find_name = input.nextLine().trim();
-                    Node<FF7_Types.Character> found = party.find(new FF7_Types.Character(find_name, 0, 0));
+                    Node<FF7_Types.Character> found = party.find_object(new FF7_Types.Character(find_name, 0, 0));
                     if (found != null) {
                         System.out.println("Found -> " + found.get_data());
                     } else {
@@ -118,7 +119,7 @@ public class FF7_Main{
                 case "5":
                     System.out.print("Name to edit: ");
                     String edit_name = input.nextLine().trim();
-                    Node<FF7_Types.Character> node = party.find(new FF7_Types.Character(edit_name, 0, 0));
+                    Node<FF7_Types.Character> node = party.find_object(new FF7_Types.Character(edit_name, 0, 0));
                     if (node == null) {
                         System.out.println("No such member.");
                         break;
@@ -245,38 +246,31 @@ public class FF7_Main{
 
         System.out.print("Start from materia name (leave empty to use first): ");
         String start_name = input.nextLine().trim();
-
         Node<FF7_Types.Materia> start_node = null;
 
         if (start_name.length() > 0) {
-            // Build a query materia with same name (grade unknown -> try several)
-            // Attempt to find by name by scanning and comparing name field.
-            // Because find() compares objects via equals, and FF7_Types.Materia.equals requires exact grade,
-            // Fallback to scanning with a for_each to capture Node if name matches.
-            final NodeContainer first_match = new NodeContainer();
+            final Node_Container any = new Node_Container();
             ring.for_each(m -> {
-                if (first_match.node == null && m.name.equals(start_name)) {
-                    // ??? We want the Node, but for_each only gives data object.
-                    // So capture the data; then find the node with exact object.
-                    first_match.captured_data = m;
+                if(any.node == null && m.name.equalsIgnoreCase(start_name)){
+                    any.node = ring.find_object(m);
                 }
             });
-            if (first_match.captured_data != null) {
-                start_node = ring.find(first_match.captured_data);
-            } else {
+            if (any.node == null){
                 System.out.println("Named materia not found. Using first element instead.");
             }
+            start_node = any.node;
         }
 
-        // If still no start_node, pick the first element captured by for_each
+
+        // Fallback if not found
         if (start_node == null) {
-            final NodeContainer any = new NodeContainer();
+            final Node_Container any = new Node_Container();
             ring.for_each(m -> {
                 if (any.captured_data == null) {
                     any.captured_data = m;
                 }
             });
-            start_node = ring.find(any.captured_data);
+            start_node = ring.find_object(any.captured_data);
         }
 
         if (start_node == null) {
@@ -292,7 +286,6 @@ public class FF7_Main{
             System.out.println(" Step " + step + " -> " + cur.get_data());
             cur = cur.get_next();
             step++;
-            // Safety: break if looped more than size*2 (prevent infinite)
             if (step > size * 2) {
                 System.out.println("Safety break triggered!");
                 break;
@@ -360,7 +353,7 @@ public class FF7_Main{
      * Small mutable container so lambda can write a Node-like result.
      * Only store the captured data object then call find() to get Node.
      */
-    private static class NodeContainer {
+    private static class Node_Container {
         public FF7_Types.Materia captured_data = null;
         public Node<FF7_Types.Materia> node = null;
     }

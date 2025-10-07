@@ -1,7 +1,7 @@
 package Lists;
 import Nodes.*;
 
-public abstract class Linked_List<T>{
+public abstract class Linked_List<T extends Comparable<T>>{
 	protected Node<T> head;
 	protected Node<T> tail;
 	protected int size;
@@ -46,5 +46,17 @@ public abstract class Linked_List<T>{
 
 	public interface Visitor<T>{
 		void visit(T item);
+	}
+
+	// Find based on object name (as requested)
+	public Node<T> find_object(T data){
+		Node<T> current = this.head;
+		while(current != null){
+			if(data.compareTo(current.get_data()) == 0){ // Equal is 0
+				return current;
+			}
+			current = current.get_next();
+		}
+		return null;
 	}
 }
